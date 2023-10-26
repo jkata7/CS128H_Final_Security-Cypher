@@ -1,6 +1,6 @@
 # CS128H_Final_Security-Cypher
 
-Group Name: (Team)^2
+Group Name: George Coast of the Road to God
 
 Group members: 
 
