@@ -9,7 +9,7 @@ pub mod reflector {
             for (key, value) in key_chars.chars().zip(value_chars.chars()) {
                 char_map.insert(key, value);
             }
-
+            
             char_map
         };
     }
