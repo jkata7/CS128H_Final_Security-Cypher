@@ -34,5 +34,16 @@ pub mod first_rotor {
         };
     }
 
-    // 
+    // the letter is encoded both forward and backwards through the rotor because it is "reflected" in the reflector
+    // effectively sending it the other way through the rotors
+
+    pub fn forward_mapping_first_rotor(input: char) -> char {
+        let output = FORWARD_MAPPING_FIRST_ROTOR.get(&input);
+        return output;
+    }
+
+    pub fn backward_mapping_first_rotor(input: char) -> char {
+        let output = BACKWARD_MAPPING_FIRST_ROTOR.get(&input);
+        return output;
+    }
 }
