@@ -23,8 +23,12 @@ impl AppState {
     }
 
     fn validate_input(&mut self) {
+        if self.plugs_input.len() > 20 || self.plugs_input.len() < 20 {
+            self.valid_input = Some("you did not enter 20 characters".to_string());
+        }
+
         if self.has_repeat() {
-            self.valid_input = Some("repeating character".to_string());
+            self.valid_input = Some("repeating character, or non-lowercase alphabets".to_string());
         }
     }
 
@@ -36,18 +40,27 @@ impl AppState {
                 if characters.contains(&to_check.unwrap().0) {
                     return true;
                 } else {
-                    characters.push(to_check.unwrap().0);
+                    let character: char = to_check.unwrap().0;
+                    if character.is_ascii_lowercase() {
+                        characters.push(character);
+                    } else {
+                        return true;
+                    }
                 }
     
                 if characters.contains(&to_check.unwrap().1) {
                     return true;
                 } else {
-                    characters.push(to_check.unwrap().1);
+                    let character: char = to_check.unwrap().1;
+                    if character.is_ascii_lowercase() {
+                        characters.push(character);
+                    } else {
+                        return true;
+                    }
                 }
             } else {
                 return true;
             }
-            
         }
         return false;
     }
