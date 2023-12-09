@@ -9,6 +9,8 @@ use druid::widget::TextBox;
 use druid::widget::{Button, Flex, Label};
 use druid::{AppLauncher, Env, LocalizedString, PlatformError, Widget, WidgetExt, WindowDesc, Data};
 
+use crate::app_state_derived_lenses::valid_input;
+
 
 
 #[derive(Clone, Default, Lens, Debug)]
@@ -168,10 +170,12 @@ fn build_ui() -> impl Widget<AppState> {
 
     let submit_button = Button::new("Submit")
         .on_click(|_, data: &mut AppState, _| {
-            
-
-            // For simplicity, we'll just print the state for now
-            println!("{:?}", data);
+            data.validate_input();
+            if data.valid_input.is_none() {
+                //do all the stuff
+            } else {
+                //display what is invalid
+            }
         });
 
     // Arrange the widgets in a column
@@ -198,7 +202,6 @@ impl<W: Widget<AppState>> Controller<AppState, W> for MyController {
         env: &Env
     ) {
         data.update_configs();
-        // also inform the child that the data has changed
         child.event(ctx, event, data, env)
     }
 }
