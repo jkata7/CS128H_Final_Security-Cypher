@@ -5,8 +5,8 @@ pub mod second_rotor {
 
     lazy_static! {
         static ref FORWARD_MAPPING_SECOND_ROTOR: HashMap<char, char> = {
-            let key_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            let value_chars = "AJDKSIRUXBLHWTMCQGZNPYFVOE";
+            let key_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".to_ascii_lowercase();
+            let value_chars = "AJDKSIRUXBLHWTMCQGZNPYFVOE".to_ascii_lowercase();
 
             let mut char_map = HashMap::new();
 
@@ -20,8 +20,8 @@ pub mod second_rotor {
 
     lazy_static! {
         static ref BACKWARD_MAPPING_SECOND_ROTOR: HashMap<char, char> = {
-            let key_chars = "AJDKSIRUXBLHWTMCQGZNPYFVOE";
-            let value_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            let key_chars = "AJDKSIRUXBLHWTMCQGZNPYFVOE".to_ascii_lowercase();
+            let value_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".to_ascii_lowercase();
 
             let mut char_map = HashMap::new();
 
@@ -36,13 +36,17 @@ pub mod second_rotor {
     // the letter is encoded both forward and backwards through the rotor because it is "reflected" in the reflector
     // effectively sending it the other way through the rotors
 
-    pub fn forward_mapping_second_rotor(input: char) -> char {
-        let output = FORWARD_MAPPING_SECOND_ROTOR.get(&input);
-        return output;
+    pub fn forward_mapping_second_rotor(input: &char) -> char {
+        let output = FORWARD_MAPPING_SECOND_ROTOR.get(input).unwrap_or_else(|| {
+            return input;
+        });
+        return *output;
     }
 
-    pub fn backward_mapping_second_rotor(input: char) -> char {
-        let output = BACKWARD_MAPPING_SECOND_ROTOR.get(&input);
-        return output;
+    pub fn backward_mapping_second_rotor(input: &char) -> char {
+        let output = BACKWARD_MAPPING_SECOND_ROTOR.get(input).unwrap_or_else(|| {
+            return input;
+        });
+        return *output;
     }
 }

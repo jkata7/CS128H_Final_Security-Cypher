@@ -1,4 +1,5 @@
 use druid::Event;
+use std::sync::{Arc, Mutex};
 use druid::EventCtx;
 use druid::Insets;
 use druid::UnitPoint;
@@ -9,9 +10,7 @@ use druid::widget::TextBox;
 use druid::widget::{Button, Flex, Label};
 use druid::{AppLauncher, Env, LocalizedString, PlatformError, Widget, WidgetExt, WindowDesc, Data};
 
-use crate::app_state_derived_lenses::valid_input;
-
-
+mod enigma;
 
 #[derive(Clone, Default, Lens, Debug)]
 struct AppState {
@@ -24,7 +23,21 @@ struct AppState {
     rotor_3_text: String,
     plugs: Vec<(char, char)>,
     valid_input: Option<String>,
+    to_encode: String,
+    encoded: String,
 }
+
+trait AppStateAsRef {
+    fn as_ref(&self) -> &AppState;
+}
+
+impl AppStateAsRef for AppState {
+    fn as_ref(&self) -> &AppState {
+        self
+    }
+}
+
+
 impl Data for AppState {
     fn same(&self, other: &Self) -> bool {
         
@@ -37,6 +50,8 @@ impl Data for AppState {
             && self.rotor_1_text == other.rotor_1_text
             && self.rotor_2_text == other.rotor_2_text
             && self.rotor_3_text == other.rotor_3_text
+            && self.to_encode == other.to_encode
+            && self.encoded == other.encoded
     }
 }
 
@@ -75,13 +90,15 @@ impl AppState {
     }
 
     fn validate_input(&mut self) {
-        self.valid_input.is_none();
+        self.valid_input = None;
         if self.plugs_input.len() > 20 || self.plugs_input.len() < 20 {
             self.valid_input = Some("you did not enter 20 characters".to_string());
+            return;
         }
 
         if self.has_repeat() {
             self.valid_input = Some("repeating character, or non-lowercase alphabetical characters".to_string());
+            return;
         }
 
         let rotor_1_result = self.rotor_1_text.parse::<i32>();
@@ -154,29 +171,59 @@ fn build_ui() -> impl Widget<AppState> {
         .controller(MyController);
 
     let rotor_1_input = TextBox::new()
-        .with_placeholder("Rotor 1")
+        .with_placeholder("Rotor 1: Enter a number between 1 and 26")
         .lens(AppState::rotor_1_text).
         controller(MyController);
 
     let rotor_2_input = TextBox::new()
-        .with_placeholder("Rotor 2")
+        .with_placeholder("Rotor 2: Enter a number between 1 and 26")
         .lens(AppState::rotor_2_text)
         .controller(MyController);
 
     let rotor_3_input = TextBox::new()
-        .with_placeholder("Rotor 3")
+        .with_placeholder("Rotor 3: Enter a number between 1 and 26")
         .lens(AppState::rotor_3_text)
         .controller(MyController);
 
+    let to_encode_input = TextBox::new()
+        .with_placeholder("Enter what you would like to encode")
+        .lens(AppState::to_encode)
+        .controller(MyController);
+    
+    // let mut to_show_label = Label::new(|_data: &AppState, _env: &_| {
+    //     return "".to_string();
+    // });
+
+    // let submit_button = Button::new("Submit")
+    //     .on_click(move |_, data: &mut AppState, _| {
+    //         data.validate_input();
+    //         if data.valid_input.is_none() {
+    //             to_show_label.set_text("".to_string());
+    //             do all the stuff
+    //         } else {
+    //             to_show_label.set_text(data.valid_input.as_ref().unwrap().to_string());
+    //         }
+    //     });
+
+    let to_show = Arc::new(Mutex::new(Label::<String>::new("".to_string())));
+    
     let submit_button = Button::new("Submit")
-        .on_click(|_, data: &mut AppState, _| {
-            data.validate_input();
-            if data.valid_input.is_none() {
-                //do all the stuff
-            } else {
-                //display what is invalid
-            }
-        });
+    .on_click(move |_, data: &mut AppState, _| {
+        data.validate_input();
+        let mut label_clone = to_show.lock().unwrap();
+        if data.valid_input.is_none() {
+            println!("{}", data.rotor_1);
+            println!("{}", data.rotor_2);
+            println!("{}", data.rotor_3);
+            println!("{}", data.to_encode);
+            let text_to_show: String = enigma::enigma::enigma(data.plugs.as_ref(), &data.rotor_1, &data.rotor_2, &data.rotor_3, &data.to_encode);
+            println!("{}", text_to_show);
+            label_clone.set_text(text_to_show.to_string());
+            
+        } else {
+            label_clone.set_text(data.valid_input.as_ref().unwrap().to_string());
+        }
+    });
 
     // Arrange the widgets in a column
     Flex::column()
@@ -185,7 +232,14 @@ fn build_ui() -> impl Widget<AppState> {
     .with_child(rotor_1_input)
     .with_child(rotor_2_input)
     .with_child(rotor_3_input)
+    .with_child(to_encode_input)
     .with_child(submit_button)
+    .with_child(Label::dynamic(move |data: &AppState, _| {
+        data.valid_input.as_ref().unwrap_or(&String::new()).clone()
+    }))
+    .with_child(Label::dynamic(move |data: &AppState, _| {
+        data.encoded.clone()
+    }))
     .padding(10.0)
 
 
@@ -202,7 +256,7 @@ impl<W: Widget<AppState>> Controller<AppState, W> for MyController {
         env: &Env
     ) {
         data.update_configs();
-        child.event(ctx, event, data, env)
+        child.event(ctx, event, data, env);
     }
 }
 
@@ -222,6 +276,8 @@ fn main() -> Result<(), PlatformError> {
         rotor_3: 1,
         plugs: Vec::<(char, char)>::new(),
         valid_input: None,
+        to_encode: "".to_string(),
+        encoded: "".to_string()
     };
 
     AppLauncher::with_window(main_window)
