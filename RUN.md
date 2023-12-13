@@ -1,4 +1,5 @@
 Commands neccessary to run: git clone [repository name]
+
 cargo run
 
 Here are the instructions:
