@@ -18,6 +18,14 @@ pub mod enigma {
         let mut rotor_1_config_copy = rotor_1_config.clone();
         let mut rotor_2_config_copy = rotor_2_config.clone();
         let mut rotor_3_config_copy = rotor_3_config.clone();
+        //   a b c
+        // a b c
+        // a b c
+//     a b c
+//     a b c
+    //   a b c
+    //   a b c
+        // a b c
 
         for mut character in input_string_copy.chars() {
             println!("Encryption sequence for {}", character);
@@ -28,19 +36,19 @@ pub mod enigma {
                 println!("{}", character);
                 character = first_rotor::first_rotor::forward_mapping_first_rotor(&character);
                 println!("{}", character);
-                character = shift_character(&character, &(26 - rotor_1_config_copy));
+                character = shift_character_backwards(&character, &rotor_1_config_copy);
                 println!("{}", character);
                 character = shift_character(&character, &rotor_2_config_copy);
-                println!("{}", character);
+                println!("{}, {}", character, rotor_2_config_copy);
                 character = second_rotor::second_rotor::forward_mapping_second_rotor(&character);
                 println!("{}", character);
-                character = shift_character(&character, &(26 - rotor_2_config_copy));
+                character = shift_character_backwards(&character, &rotor_2_config_copy);
                 println!("{}", character);
                 character = shift_character(&character, &rotor_3_config_copy);
                 println!("{}", character);
                 character = third_rotor::third_rotor::forward_mapping_third_rotor(&character);
                 println!("{}", character);
-                character = shift_character(&character, &(26 - rotor_3_config_copy));
+                character = shift_character_backwards(&character, &rotor_3_config_copy);
                 println!("{}", character);
                 character = reflector::reflector::reflector(&character);
                 println!("{}", character);
@@ -48,19 +56,19 @@ pub mod enigma {
                 println!("{}", character);
                 character = third_rotor::third_rotor::backward_mapping_third_rotor(&character);
                 println!("{}", character);
-                character = shift_character(&character, &(26 - rotor_3_config_copy));
+                character = shift_character_backwards(&character, &rotor_3_config_copy);
                 println!("{}", character);
                 character = shift_character(&character, &rotor_2_config_copy);
                 println!("{}", character);
                 character = second_rotor::second_rotor::backward_mapping_second_rotor(&character);
                 println!("{}", character);
-                character = shift_character(&character, &(26 - rotor_2_config_copy));
+                character = shift_character_backwards(&character, &rotor_2_config_copy);
                 println!("{}", character);
                 character = shift_character(&character, &rotor_1_config_copy);
                 println!("{}", character);
                 character = first_rotor::first_rotor::backward_mapping_first_rotor(&character);
                 println!("{}", character);
-                character = shift_character(&character, &(26 - rotor_1_config_copy));
+                character = shift_character_backwards(&character, &rotor_1_config_copy);
                 println!("{}", character);
                 character = plugboard::plugboard::plugboard(plugboard_config, &character);
                 println!("{}", character);
@@ -86,10 +94,14 @@ pub mod enigma {
     }
 
     pub fn shift_character(character: &char, shift: &i32) -> char {
-        let new_position = (((char_to_position(character) - 1)+ (shift - 1)) % 26) + 1;
+        let new_position = (((char_to_position(character) - 1) + (shift - 1)) % 26) + 1;
         return position_to_char(&new_position);
     }
 
+    pub fn shift_character_backwards(character: &char, shift: &i32) -> char {
+        let new_position = (((char_to_position(character) - 1) - (shift - 1) + 26) % 26) + 1;
+        return position_to_char(&new_position);
+    }
     fn char_to_position(character: &char) -> i32 {
         return (*character as u8 - b'a' + 1) as i32;
     }

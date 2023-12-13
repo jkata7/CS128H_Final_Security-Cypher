@@ -216,9 +216,9 @@ fn build_ui() -> impl Widget<AppState> {
             println!("{}", data.rotor_2);
             println!("{}", data.rotor_3);
             println!("{}", data.to_encode);
-            let text_to_show: String = enigma::enigma::enigma(data.plugs.as_ref(), &data.rotor_1, &data.rotor_2, &data.rotor_3, &data.to_encode);
-            println!("{}", text_to_show);
-            label_clone.set_text(text_to_show.to_string());
+            data.encoded = enigma::enigma::enigma(data.plugs.as_ref(), &data.rotor_1, &data.rotor_2, &data.rotor_3, &data.to_encode);
+            println!("{}", data.encoded);
+            label_clone.set_text(data.encoded.to_string());
             
         } else {
             label_clone.set_text(data.valid_input.as_ref().unwrap().to_string());
@@ -227,7 +227,11 @@ fn build_ui() -> impl Widget<AppState> {
 
     // Arrange the widgets in a column
     Flex::column()
-    .with_child(Align::new(UnitPoint::CENTER, Label::new("Child 1")).padding(Insets::uniform(10.0)))
+    .with_child(Align::new(UnitPoint::CENTER, Label::new("Enigma machine")).padding(Insets::uniform(10.0)))
+    .with_child(Align::new(UnitPoint::CENTER, Label::new("Instructions: Enter a sequence of 20 distinct characters for the plugboard, 
+    \n and three numbers between 1 and 26 for the rotor configurations. 
+    \n Then, type the text you want to encrypt. 
+    \n To decrypt, use the same settings and then type the encrypted text in the last box.")).padding(Insets::uniform(10.0)))
     .with_child(plugs_input)
     .with_child(rotor_1_input)
     .with_child(rotor_2_input)
