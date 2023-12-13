@@ -1,5 +1,7 @@
 Commands neccessary to run: git clone [repository name]
 
+cd CS128H_Final_Security-Cypher
+
 cargo run
 
 Here are the instructions:
