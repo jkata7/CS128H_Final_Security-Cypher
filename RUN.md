@@ -1,3 +1,6 @@
+Commands neccessary to run: git clone [repository name]
+cargo run
+
 Here are the instructions:
 In the first box, type a sequence of 20 distinct lowercase alphabets. This is the plugboard configuration in the enigma. 
 Next, type three integer values between 1 and 26 in the next three boxes. These are the rotor configurations.
